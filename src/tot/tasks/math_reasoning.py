@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from tot.tasks.base import Task, DATA_PATH
 from tot.prompts.math_reasoning import *
+from ....scripts.mathDataParser import DataParser
 
 
 class MathTask(Task):
@@ -16,19 +17,20 @@ class MathTask(Task):
         25
     """
 
-    def __init__(self, file='mathDAO.csv'):
+    def __init__(self, filePath='./'):
         super().__init__()
-        path = os.path.join(DATA_PATH, 'math', file)
-        self.data = list(pd.read_csv(path))
+        self.mathDAO = DataParser()
+        self.mathDAO.datapath = filePath
+        self.mathDAO.loadResults()
         self.value_cache = {}
         self.steps = 4
         self.stops = ['\n'] * 4
 
     def __len__(self) -> int:
-        return len(self.data)
+        return len(self.mathDAO)
 
     def get_input(self, idx: int) -> str:
-        return self.data[idx]['question']
+        return self.mathDAO.questionsList[idx]
 
     @staticmethod
     def extract_answer(answer_raw):
@@ -41,7 +43,7 @@ class MathTask(Task):
     def test_output(self, idx: int, output: str):
         expression = output.strip().split('\n')[-1].lower().replace('Final answer: ', '')
         model_answer = self.extract_answer(expression)
-        correct_answer = self.data[idx]['answer']
+        correct_answer = self.mathDAO.solutionList[idx]
         if float(model_answer) == float(correct_answer):
             return {'r': 1}
         else:
