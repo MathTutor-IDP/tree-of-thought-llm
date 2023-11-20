@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from tot.tasks.base import Task, DATA_PATH
 from tot.prompts.math_reasoning import *
-from ....scripts.mathDataParser import DataParser
+from tot.mathDataParser import DataParser
 
 
 class MathTask(Task):
@@ -17,11 +17,10 @@ class MathTask(Task):
         25
     """
 
-    def __init__(self, filePath='./'):
+    def __init__(self, file_path='data/'):
         super().__init__()
-        self.mathDAO = DataParser()
-        self.mathDAO.datapath = filePath
-        self.mathDAO.loadResults()
+        self.mathDAO = DataParser(file_path)
+        self.mathDAO.loadResults('train', 'algebra')
         self.value_cache = {}
         self.steps = 4
         self.stops = ['\n'] * 4
@@ -43,7 +42,8 @@ class MathTask(Task):
     def test_output(self, idx: int, output: str):
         expression = output.strip().split('\n')[-1].lower().replace('Final answer: ', '')
         model_answer = self.extract_answer(expression)
-        correct_answer = self.mathDAO.solutionList[idx]
+        correct_answer = self.extract_answer(self.mathDAO.resultsList[idx])
+        print(model_answer, correct_answer)
         if float(model_answer) == float(correct_answer):
             return {'r': 1}
         else:
@@ -58,12 +58,12 @@ class MathTask(Task):
         return cot_prompt.format(question=question) + y
 
     @staticmethod
-    def propose_prompt_wrap(question: str, steps: str = '') -> str:
-        if not steps:
+    def propose_prompt_wrap(question: str, y: str = '') -> str:
+        if not y:
             return propose_first_step_prompt.format(question=question)
-        elif "problem solved" in steps[-1].lower():
-            return propose_final_step_prompt.format(question=question, steps=steps)
-        return propose_next_step_prompt.format(question=question, steps=steps)
+        elif "problem solved" in y.lower():
+            return propose_final_step_prompt.format(question=question, solution=y)
+        return propose_next_step_prompt.format(question=question, steps=y)
 
     @staticmethod
     def value_prompt_wrap(question: str, steps: str = '') -> str:

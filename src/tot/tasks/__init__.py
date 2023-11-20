@@ -8,5 +8,8 @@ def get_task(name):
     elif name == 'crosswords':
         from tot.tasks.crosswords import MiniCrosswordsTask
         return MiniCrosswordsTask()
+    elif name == 'math':
+        from tot.tasks.math_reasoning import MathTask
+        return MathTask('src/tot/data/math/')
     else:
         raise NotImplementedError
