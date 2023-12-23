@@ -3,6 +3,7 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 class Task:
     def __init__(self):
+        self.stop_iteration = False
         pass
 
     def __len__(self) -> int:

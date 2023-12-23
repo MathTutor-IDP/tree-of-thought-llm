@@ -16,12 +16,17 @@ def run(args):
     os.makedirs(os.path.dirname(file), exist_ok=True)
 
     for i in range(args.task_start_index, args.task_end_index):
+
+        info_init = {'idx': i}
+
         # solve
         if args.naive_run:
             ys, info = naive_solve(args, task, i) 
         else:
             ys, info = solve(args, task, i)
 
+        info_init.update(info)
+        info = info_init
         # log
         infos = [task.test_output(i, y) for y in ys]
         info.update({'idx': i, 'ys': ys, 'infos': infos, 'usage_so_far': gpt_usage(args.backend)})

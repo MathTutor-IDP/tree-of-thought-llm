@@ -22,8 +22,9 @@ class MathTask(Task):
         self.mathDAO = DataParser(file_path)
         self.mathDAO.loadResults('train', 'algebra')
         self.value_cache = {}
-        self.steps = 4
+        self.steps = 5
         self.stops = ['\n'] * 4
+        self.stop_iteration = False
 
     def __len__(self) -> int:
         return len(self.mathDAO)
@@ -57,11 +58,11 @@ class MathTask(Task):
     def cot_prompt_wrap(question: str, y: str = '') -> str:
         return cot_prompt.format(question=question) + y
 
-    @staticmethod
-    def propose_prompt_wrap(question: str, y: str = '') -> str:
+    def propose_prompt_wrap(self, question: str, y: str = '') -> str:
         if not y:
             return propose_first_step_prompt.format(question=question)
         elif "problem solved" in y.lower():
+            self.stop_iteration = True
             return propose_final_step_prompt.format(question=question, solution=y)
         return propose_next_step_prompt.format(question=question, steps=y)
 

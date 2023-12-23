@@ -82,6 +82,9 @@ def solve(args, task, idx, to_print=True):
         
         infos.append({'step': step, 'x': x, 'ys': ys, 'new_ys': new_ys, 'values': values, 'select_new_ys': select_new_ys})
         ys = select_new_ys
+
+        if task.stop_iteration:
+            break
     
     if to_print: 
         print(ys)
