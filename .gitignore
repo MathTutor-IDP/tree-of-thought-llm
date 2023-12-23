@@ -5,3 +5,5 @@ src/tree_of_thoughts_llm.egg-info/
 *.pyc
 *.DS_Store
 src/tot/data/math/*
+.idea/
+logs/*
