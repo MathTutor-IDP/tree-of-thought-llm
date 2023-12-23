@@ -20,7 +20,7 @@ class MathTask(Task):
     def __init__(self, file_path='data/'):
         super().__init__()
         self.mathDAO = DataParser(file_path)
-        self.mathDAO.loadResults('train', 'algebra')
+        self.mathDAO.loadResults('level_5', 'algebra')
         self.value_cache = {}
         self.steps = 5
         self.stops = ['\n'] * 4
