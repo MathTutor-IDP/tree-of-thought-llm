@@ -51,7 +51,7 @@ class DataParser:
 
     def saveasfile(self, mode: str, subtopic: str) -> None:
         # Save results as json
-        with open("./" + mode + "/" + subtopic + '_answers.json', 'w') as fp:
+        with open(self.datapath +"/" + mode + "/" + subtopic + '_answers.json', 'w') as fp:
             json.dump(self.resultsDict, fp)
 
     def findAnswer(self, solution: str) -> str:
