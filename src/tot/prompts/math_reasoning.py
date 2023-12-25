@@ -62,29 +62,30 @@ Question: {question}
 </Task>
 '''
 
-propose_next_step_prompt = '''Propose 3 different next steps to solve the following math problem. If the solution is reached, write "Problem solved" at the end. If final answer is not yet reached, write down the next step. 
+propose_next_step_prompt = '''Propose 3 alternatives that can be the next step to solve the following math problem. If the solution is reached, write "Problem solved" at the end. If final answer is not yet reached, write down the next step. 
+
 <Example>
 Question: Let \\[f(x) = \\left\\{{\\n\\begin{{array}}{{cl}} ax+3, &\\text{{ if }}x>2, \\\\\\nx-5 &\\text{{ if }} -2 \\le x \\le 2, \\\\\\n2x-b &\\text{{ if }} x <-2.\\n\\end{{array}}\\n\\right.\\]Find $a+b$ if the piecewise function is continuous (which means that its graph can be drawn without lifting your pencil from the paper).
 Steps until now: For the piecewise function to be continuous, the cases must "meet" at $2$ and $-2$.
-Next step #1: For example, $ax+3$ and $x-5$ must be equal when $x=2$. This implies $a(2)+3=2-5$, which we solve to get $2a=-6 \\Rightarrow a=-3$.
-Next step #2: Set up the equation, $x-5$ and $2x-b$ must be equal when $x=-2$. Substituting, we get $-2-5=2(-2)-b$, which implies $b=3$.
-Next step #3: Therefore, $ax+3$=$x-5$ and $x-5$=$2x-b$ when $x=2$ and $x=-2$, respectively. This implies $a=-3$ and $b=3$, so $a+b=\\boxed{{0}}$. Problem solved.
+Next step alternative #1: For example, $ax+3$ and $x-5$ must be equal when $x=2$. This implies $a(2)+3=2-5$, which we solve to get $2a=-6 \\Rightarrow a=-3$.
+Next step alternative #2: Set up the equation, $x-5$ and $2x-b$ must be equal when $x=-2$. Substituting, we get $-2-5=2(-2)-b$, which implies $b=3$.
+Next step alternative #3: Therefore, $ax+3$=$x-5$ and $x-5$=$2x-b$ when $x=2$ and $x=-2$, respectively. This implies $a=-3$ and $b=3$, so $a+b=\\boxed{{0}}$. Problem solved.
 </Example>
 
 <Example>
 Question: Sixteen is 64$\\%$ of what number? 
 Steps until now: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$.
-Next step #1: We divide both sides by $4$ to get $\\frac{{1}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{25}}$. Problem solved.
-Next step #2: We can cross multiply to get $16=0.64x$. Dividing both sides by $0.64$, we get $x=\\boxed{{25}}$. Problem solved.
-Next step #3: We can multiply both sides by $x$ to get $16=0.64x$. Dividing both sides by $0.64$, we get $x=\\boxed{{25}}$. Problem solved.
+Next step alternative #1: We divide both sides by $4$ to get $\\frac{{1}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{25}}$. Problem solved.
+Next step alternative #2: We can cross multiply to get $16=0.64x$. Dividing both sides by $0.64$, we get $x=\\boxed{{25}}$. Problem solved.
+Next step alternative #3: We can multiply both sides by $x$ to get $16=0.64x$. Dividing both sides by $0.64$, we get $x=\\boxed{{25}}$. Problem solved.
 </Example>
 
 <Example>
 Question: There are 3 complex numbers $a+bi$, $c+di$, and $e+fi$. If $b=1$, $e=-a-c$, and the sum of the numbers is $-i$, find $d+f$.
 Steps until now: We know that $a+bi+c+di+e+fi=-i$. Thus, the real parts add up to 0 and the imaginary parts add up to -1.
-Next step #1: We then have  \\begin{{align}}\\na+c+e&=0\\\\\\nb+d+f&=-1\\\\\\n\\end{{align}}We know that $b=1$, therefore $d+f=\\boxed{{-2}}$. Problem solved.
-Next step #2: We can set up the imaginary part equation $b+d+f=-1$. Since $b=1$, we get $d+f=-2$. Problem solved.
-Next step #3: Imaginary part of the equation becomes $b+d+f=-1$.
+Next step alternative #1: We then have  \\begin{{align}}\\na+c+e&=0\\\\\\nb+d+f&=-1\\\\\\n\\end{{align}}We know that $b=1$, therefore $d+f=\\boxed{{-2}}$. Problem solved.
+Next step alternative #2: We can set up the imaginary part equation $b+d+f=-1$. Since $b=1$, we get $d+f=-2$. Problem solved.
+Next step alternative #3: Imaginary part of the equation becomes $b+d+f=-1$.
 </Example>
 
 <Task>
