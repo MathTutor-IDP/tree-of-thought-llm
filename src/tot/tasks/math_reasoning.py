@@ -24,6 +24,7 @@ class MathTask(Task):
         self.value_cache = {}
         self.steps = 5
         self.stops = ['\n'] * 4
+        self.gpt_usage = 0
         self.stop_iteration = False
 
     def __len__(self) -> int:
