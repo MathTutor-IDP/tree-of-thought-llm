@@ -64,12 +64,14 @@ def solve(args, task, idx, to_print=True):
     ys = ['']  # current output candidates
     infos = []
     lim = args.limit
+    select_new_ys = ['']
     for step in range(task.steps):
-        if hasattr(task,"gpt_limit_reached") and task.gpt_limit_reached:
+        if (hasattr(task, "gpt_limit_reached") and task.gpt_limit_reached) or step == task.steps - 1:
             final_result = gpt_overuse(task,x,select_new_ys[0])
             infos.append({'step': step, 'x': x, "final_result":final_result})
             task.gpt_limit_reached = False
             task.gpt_usage = 0
+            ys = [select_new_ys[0] + "\n" + final_result]
             break
         # generation
         if args.method_generate == 'sample':
@@ -126,10 +128,9 @@ def check_gpt_usage(task, limit):
         task.gpt_limit_reached = True
         return False
     return True
-        
-        
 
-def gpt_overuse(task,x,y):
-    prompt = task.gpt_overuse_wrap(x,y)
-    final = gpt(prompt=prompt, n=1, stop=None)[0].split('\n')
+
+def gpt_overuse(task, x, y):
+    prompt = task.gpt_overuse_wrap(x, y)
+    final = gpt(prompt=prompt, n=1, stop=None)[0].split('\n')[-1]
     return final

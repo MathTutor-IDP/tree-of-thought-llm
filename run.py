@@ -19,6 +19,9 @@ def run(args):
 
         info_init = {'idx': i}
 
+        if hasattr(task, 'stop_iteration'):
+            task.stop_iteration = False
+
         # solve
         if args.naive_run:
             ys, info = naive_solve(args, task, i) 

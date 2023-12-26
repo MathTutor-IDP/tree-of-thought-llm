@@ -53,9 +53,9 @@ class MathTask(Task):
             pass
 
         if model_answer == correct_answer:
-            return {'r': 1}
+            return {'r': 1, 'correct_answer': correct_answer, 'model_answer': model_answer}
         else:
-            return {'r': 0}
+            return {'r': 0, 'correct_answer': correct_answer, 'model_answer': model_answer}
 
     @staticmethod
     def standard_prompt_wrap(question: str, y: str = '') -> str:
