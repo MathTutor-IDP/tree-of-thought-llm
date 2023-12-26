@@ -35,7 +35,8 @@ def get_votes(task, x, ys, n_evaluate_sample,limit):
 
 def get_proposals(task, x, y,limit): 
     propose_prompt = task.propose_prompt_wrap(x, y)
-    check_gpt_usage(task, limit)
+    if not check_gpt_usage(task, limit):
+        return
     proposals = gpt(propose_prompt, n=1, stop=None)[0].split('\n')
     proposals_list = []
     for p in proposals:
@@ -50,7 +51,8 @@ def get_samples(task, x, y, n_generate_sample, prompt_sample, stop,limit):
         prompt = task.cot_prompt_wrap(x, y)
     else:
         raise ValueError(f'prompt_sample {prompt_sample} not recognized')
-    check_gpt_usage(task, limit)
+    if not check_gpt_usage(task, limit):
+        return
     samples = gpt(prompt, n=n_generate_sample, stop=stop)
     return [y + _ for _ in samples]
 
@@ -63,11 +65,18 @@ def solve(args, task, idx, to_print=True):
     infos = []
     lim = args.limit
     for step in range(task.steps):
+        if hasattr(task,"gpt_limit_reached") and task.gpt_limit_reached:
+            final_result = gpt_overuse(task,x,select_new_ys[0])
+            infos.append({'step': step, 'x': x, "final_result":final_result})
+            task.gpt_limit_reached = False
+            task.gpt_usage = 0
+            break
         # generation
         if args.method_generate == 'sample':
             new_ys = [get_samples(task, x, y, args.n_generate_sample, prompt_sample=args.prompt_sample, stop=task.stops[step],limit=lim) for y in ys]
         elif args.method_generate == 'propose':
-            new_ys = [get_proposals(task, x, y,lim) for y in ys]
+            new_ys = [get_proposals(task, x, y,lim) for y in ys ]
+            new_ys = [x for x in new_ys if x is not None]
         new_ys = list(itertools.chain(*new_ys))
         ids = list(range(len(new_ys)))
         # evaluation
@@ -109,10 +118,18 @@ def naive_solve(args, task, idx, to_print=True):
     return ys, {}
 
 def check_gpt_usage(task, limit):
-    if not hasattr(task, "gpt_usage"):
-        return
-    if task.gpt_usage > limit:
-        raise ValueError(f'gpt usage {task.gpt_usage} exceeds 20')
-    else:
-        print(f'gpt usage {task.gpt_usage}')
-        task.gpt_usage += 1
+    if not hasattr(task, "gpt_usage") or not hasattr(task, "gpt_limit_reached"):
+        return True
+    task.gpt_usage += 1
+    print(f'gpt usage {task.gpt_usage}')
+    if task.gpt_usage >= limit:
+        task.gpt_limit_reached = True
+        return False
+    return True
+        
+        
+
+def gpt_overuse(task,x,y):
+    prompt = task.gpt_overuse_wrap(x,y)
+    final = gpt(prompt=prompt, n=1, stop=None)[0].split('\n')
+    return final

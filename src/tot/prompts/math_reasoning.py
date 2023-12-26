@@ -155,3 +155,28 @@ Evaluation:
 </Task>
 '''
 
+
+
+gpt_overuse_prompt = '''Solve the following math problem. Use the previous steps provided for the reasoning. Even if the given steps are not enough for the solution, you can use them to help you. Give the final answer as in the examples.
+
+<Example>
+Question: Let \\[f(x) = \\left\\{{\\n\\begin{{array}}{{cl}} ax+3, &\\text{{ if }}x>2, \\\\\\nx-5 &\\text{{ if }} -2 \\le x \\le 2, \\\\\\n2x-b &\\text{{ if }} x <-2.\\n\\end{{array}}\\n\\right.\\]Find $a+b$ if the piecewise function is continuous (which means that its graph can be drawn without lifting your pencil from the paper). Let's think step by step.
+Solution: For the piecewise function to be continuous, the cases must "meet" at $2$ and $-2$. For example, $ax+3$ and $x-5$ must be equal when $x=2$. This implies $a(2)+3=2-5$, which we solve to get $2a=-6 \\Rightarrow a=-3$. Similarly, $x-5$ and $2x-b$ must be equal when $x=-2$. Substituting, we get $-2-5=2(-2)-b$, which implies $b=3$. So $a+b=-3+3=\\boxed{{0}}$.
+</Example>
+
+<Example>
+Question: Sixteen is 64$\\%$ of what number? Let's think step by step.
+Solution: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$. We divide both sides by $4$ to get $\\frac{{1}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{25}}$.
+</Example>
+
+<Example>
+Question: There are 3 complex numbers $a+bi$, $c+di$, and $e+fi$. If $b=1$, $e=-a-c$, and the sum of the numbers is $-i$, find $d+f$. Let's think step by step.
+Solution: We know that $a+bi+c+di+e+fi=-i$. Thus, the real parts add up to 0 and the imaginary parts add up to -1. We then have  \\begin{{align}}\\na+c+e&=0\\\\\\nb+d+f&=-1\\\\\\n\\end{{align}}We know that $b=1$, therefore $d+f=\\boxed{{-2}}$
+</Example>
+
+<Task>
+Question: {question}.
+Steps: {steps}
+Final answer: 
+</Task>
+'''
