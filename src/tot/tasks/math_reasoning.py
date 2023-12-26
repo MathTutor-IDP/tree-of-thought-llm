@@ -26,6 +26,7 @@ class MathTask(Task):
         self.stops = ['\n'] * 4
         self.gpt_usage = 0
         self.stop_iteration = False
+        self.gpt_limit_reached = False
 
     def __len__(self) -> int:
         return len(self.mathDAO)
@@ -83,3 +84,7 @@ class MathTask(Task):
         value_map = {'unlikely': 0.001, 'unsure': 1, 'likely': 20}  # TODO: ad hoc
         value = sum(value * value_names.count(name) for name, value in value_map.items())
         return value
+    
+    @staticmethod
+    def gpt_overuse_wrap(question: str, y: str = '') -> str:
+        return gpt_overuse_prompt.format(question=question, steps=y)
