@@ -37,7 +37,11 @@ def get_proposals(task, x, y,limit):
     propose_prompt = task.propose_prompt_wrap(x, y)
     check_gpt_usage(task, limit)
     proposals = gpt(propose_prompt, n=1, stop=None)[0].split('\n')
-    return [y + _ + '\n' for _ in proposals]
+    proposals_list = []
+    for p in proposals:
+        if p and p != y:
+            proposals_list.append(y + p + '\n')
+    return proposals_list
 
 def get_samples(task, x, y, n_generate_sample, prompt_sample, stop,limit):
     if prompt_sample == 'standard':
@@ -68,9 +72,9 @@ def solve(args, task, idx, to_print=True):
         ids = list(range(len(new_ys)))
         # evaluation
         if args.method_evaluate == 'vote':
-            values = get_votes(task, x, new_ys, args.n_evaluate_sample,limit=lim)
+            values = get_votes(task, x, new_ys, args.n_evaluate_sample, limit=lim)
         elif args.method_evaluate == 'value':
-            values = get_values(task, x, new_ys, args.n_evaluate_sample,limit=lim)
+            values = get_values(task, x, new_ys, args.n_evaluate_sample, limit=lim)
 
         # selection
         if args.method_select == 'sample':

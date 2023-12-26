@@ -1,9 +1,9 @@
 import re
 import os
 import pandas as pd
-from tot.tasks.base import Task, DATA_PATH
-from tot.prompts.math_reasoning import *
-from tot.mathDataParser import DataParser
+from src.tot.tasks.base import Task, DATA_PATH
+from src.tot.prompts.math_reasoning import *
+from src.tot.mathDataParser import DataParser
 
 
 class MathTask(Task):
@@ -22,7 +22,7 @@ class MathTask(Task):
         self.mathDAO = DataParser(file_path)
         self.mathDAO.loadResults('level_5', 'algebra')
         self.value_cache = {}
-        self.steps = 5
+        self.steps = 4
         self.stops = ['\n'] * 4
         self.gpt_usage = 0
         self.stop_iteration = False
@@ -45,8 +45,13 @@ class MathTask(Task):
         expression = output.strip().split('\n')[-1].lower().replace('Final answer: ', '')
         model_answer = self.extract_answer(expression)
         correct_answer = self.extract_answer(self.mathDAO.resultsList[idx])
-        print(model_answer, correct_answer)
-        if float(model_answer) == float(correct_answer):
+        try:
+            model_answer = float(model_answer)
+            correct_answer = float(correct_answer)
+        except ValueError:
+            pass
+
+        if model_answer == correct_answer:
             return {'r': 1}
         else:
             return {'r': 0}
@@ -80,6 +85,6 @@ class MathTask(Task):
             return 0
 
         value_names = [_.split('\n')[-1].replace('Evaluation: ', '') for _ in value_outputs]
-        value_map = {'unlikely': 0.001, 'unsure': 1, 'likely': 20}  # TODO: ad hoc
+        value_map = {'unlikely': 0.001, 'unsure': 1, 'likely': 20, 'solved': 9999}  # TODO: ad hoc
         value = sum(value * value_names.count(name) for name, value in value_map.items())
         return value
