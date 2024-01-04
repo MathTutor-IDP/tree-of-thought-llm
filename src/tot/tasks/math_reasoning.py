@@ -5,6 +5,7 @@ from src.tot.tasks.base import Task, DATA_PATH
 from src.tot.prompts.math_reasoning import *
 from src.tot.mathDataParser import DataParser
 
+STOPS = ["Step2:", "Step3:", "Step4:", "Final answer:"]
 
 class MathTask(Task):
     """
@@ -23,7 +24,7 @@ class MathTask(Task):
         self.mathDAO.loadResults('level_5', 'algebra')
         self.value_cache = {}
         self.steps = 4
-        self.stops = ['\n'] * 4
+        self.stops = STOPS
         self.gpt_usage = 0
         self.stop_iteration = False
         self.gpt_limit_reached = False
@@ -63,7 +64,7 @@ class MathTask(Task):
 
     @staticmethod
     def cot_prompt_wrap(question: str, y: str = '') -> str:
-        return cot_prompt.format(question=question) + y
+        return cot_prompt.format(question=question,current_steps=y)
 
     def propose_prompt_wrap(self, question: str, y: str = '') -> str:
         if not y:

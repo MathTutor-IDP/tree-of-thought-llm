@@ -1,7 +1,7 @@
 import itertools
 import numpy as np
 from functools import partial
-from tot.models import gpt
+from src.tot.models import gpt
 
 def get_value(task, x, y, n_evaluate_sample, cache_value=True,limit=20):
     value_prompt = task.value_prompt_wrap(x, y)
@@ -51,7 +51,7 @@ def get_samples(task, x, y, n_generate_sample, prompt_sample, stop,limit):
         prompt = task.cot_prompt_wrap(x, y)
     else:
         raise ValueError(f'prompt_sample {prompt_sample} not recognized')
-    if not check_gpt_usage(task, limit):
+    if not check_gpt_usage(task, limit,n=n_generate_sample):
         return
     samples = gpt(prompt, n=n_generate_sample, stop=stop)
     return [y + _ for _ in samples]
@@ -119,10 +119,10 @@ def naive_solve(args, task, idx, to_print=True):
     ys = get_samples(task, x, '', args.n_generate_sample, args.prompt_sample, stop=None)
     return ys, {}
 
-def check_gpt_usage(task, limit):
+def check_gpt_usage(task, limit,n=1):
     if not hasattr(task, "gpt_usage") or not hasattr(task, "gpt_limit_reached"):
         return True
-    task.gpt_usage += 1
+    task.gpt_usage += n
     print(f'gpt usage {task.gpt_usage}')
     if task.gpt_usage >= limit:
         task.gpt_limit_reached = True
