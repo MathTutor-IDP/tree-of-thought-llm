@@ -5,7 +5,7 @@ from src.tot.tasks.base import Task, DATA_PATH
 from src.tot.prompts.math_reasoning import *
 from src.tot.mathDataParser import DataParser
 
-STOPS = ["Step2:", "Step3:", "Step4:", "Final answer:"]
+STOPS = ["Step 2:", "Step 3:", "Step 4:", "Final answer:"]
 
 class MathTask(Task):
     """
