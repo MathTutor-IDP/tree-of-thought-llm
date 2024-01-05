@@ -29,8 +29,6 @@ Question: Sixteen is 64$\\%$ of what number? Let's think step by step.
 <Solution>
 Step 1: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$.
 Step 2: We divide both sides by $4$ to get $\\frac{{1}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{25}}$.
-Step 3: --UNUSED--
-Step 4: --UNUSED--
 Final answer: \\boxed{{25}}$
 </Solution> If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$. We divide both sides by $4$ to get $\\frac{{1}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{25}}$.
 </Example>
@@ -41,13 +39,12 @@ Question: There are 3 complex numbers $a+bi$, $c+di$, and $e+fi$. If $b=1$, $e=-
 Step 1: We know that $a+bi+c+di+e+fi=-i$. Thus, the real parts add up to 0 and the imaginary parts add up to -1.
 Step 2: We then have  \\begin{{align}}\\na+c+e&=0\\\\\\nb+d+f&=-1\\\\\\n\\end{{align}}
 Step 3: We know that $b=1$, therefore $d+f=\\boxed{{-2}}$
-step 4: --UNUSED--
 Final answer: \\boxed{{-2}}$
 </Solution> We know that $a+bi+c+di+e+fi=-i$. Thus, the real parts add up to 0 and the imaginary parts add up to -1. We then have  \\begin{{align}}\\na+c+e&=0\\\\\\nb+d+f&=-1\\\\\\n\\end{{align}}We know that $b=1$, therefore $d+f=\\boxed{{-2}}$
 </Example>
 
 <Task>
-Question: {question} Let's think step by step. Fill in the blank steps below like the examples.
+Question: {question} Let's think step by step. Explain the reasoning for the final answer like the examples. Do not skip step numbers. Do not write down the question. While giving next steps, start by writing the current step number like given format. Do not write previous steps given steps in answer.
 <Solution>
 {current_steps}
 </Solution> 

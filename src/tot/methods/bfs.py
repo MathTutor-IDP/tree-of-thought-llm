@@ -44,17 +44,19 @@ def get_proposals(task, x, y,limit):
             proposals_list.append(y + p + '\n')
     return proposals_list
 
-def get_samples(task, x, y, n_generate_sample, prompt_sample, stop,limit):
+def get_samples(task, x, y, n_generate_sample, prompt_sample, stop,limit,concotation=True):
     if prompt_sample == 'standard':
         prompt = task.standard_prompt_wrap(x, y)
     elif prompt_sample == 'cot':
         prompt = task.cot_prompt_wrap(x, y)
     else:
         raise ValueError(f'prompt_sample {prompt_sample} not recognized')
-    if not check_gpt_usage(task, limit,n=n_generate_sample):
-        return
+    check_gpt_usage(task, limit,n=n_generate_sample)
     samples = gpt(prompt, n=n_generate_sample, stop=stop)
-    return [y + _ for _ in samples]
+    if concotation:
+        return [y + _ for _ in samples]
+    else:
+        return samples
 
 def solve(args, task, idx, to_print=True):
     global gpt
@@ -66,16 +68,9 @@ def solve(args, task, idx, to_print=True):
     lim = args.limit
     select_new_ys = ['']
     for step in range(task.steps):
-        if (hasattr(task, "gpt_limit_reached") and task.gpt_limit_reached) or step == task.steps - 1:
-            final_result = gpt_overuse(task,x,select_new_ys[0])
-            infos.append({'step': step, 'x': x, "final_result":final_result})
-            task.gpt_limit_reached = False
-            task.gpt_usage = 0
-            ys = [select_new_ys[0] + "\n" + final_result]
-            break
         # generation
         if args.method_generate == 'sample':
-            new_ys = [get_samples(task, x, y, args.n_generate_sample, prompt_sample=args.prompt_sample, stop=task.stops[step],limit=lim) for y in ys]
+            new_ys = [get_samples(task, x, y, args.n_generate_sample, prompt_sample=args.prompt_sample, stop=task.stops[step],limit=lim,concotation=args.concatination) for y in ys]
         elif args.method_generate == 'propose':
             new_ys = [get_proposals(task, x, y,lim) for y in ys ]
             new_ys = [x for x in new_ys if x is not None]
@@ -102,6 +97,14 @@ def solve(args, task, idx, to_print=True):
         
         infos.append({'step': step, 'x': x, 'ys': ys, 'new_ys': new_ys, 'values': values, 'select_new_ys': select_new_ys})
         ys = select_new_ys
+
+        if (hasattr(task, "gpt_limit_reached") and task.gpt_limit_reached):
+            final_result = gpt_overuse(task,x,select_new_ys[0])
+            infos.append({'step': step, 'x': x, "final_result":final_result})
+            task.gpt_limit_reached = False
+            task.gpt_usage = 0
+            ys = [select_new_ys[0] + "\n" + final_result]
+            break
 
         if task.stop_iteration:
             break
