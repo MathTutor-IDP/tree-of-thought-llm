@@ -2,6 +2,7 @@ import itertools
 import numpy as np
 from functools import partial
 from src.tot.models import gpt
+from src.tot.tree import node, tree
 
 def get_value(task, x, y, n_evaluate_sample, cache_value=True,limit=20):
     value_prompt = task.value_prompt_wrap(x, y)
@@ -63,15 +64,34 @@ def solve(args, task, idx, to_print=True):
     gpt = partial(gpt, model=args.backend, temperature=args.temperature)
     print(gpt)
     x = task.get_input(idx)  # input
-    ys = ['']  # current output candidates
     infos = []
     lim = args.limit
     select_new_ys = ['']
+    tracker = tree(task.steps)
+    start_node = node('')
+    start_node.index = tracker.idcount
+    ys = [start_node]  # current output candidates
     for step in range(task.steps):
         # generation
         if args.method_generate == 'sample':
-            new_ys = [get_samples(task, x, y, args.n_generate_sample, prompt_sample=args.prompt_sample, stop=task.stops[step],limit=lim,concotation=args.concatination) for y in ys]
+            new_ys = []
+            for y in ys:
+                sample = get_samples(task, x, y.data, args.n_generate_sample, prompt_sample=args.prompt_sample, stop=task.stops[step],limit=lim,concotation=args.concatination)
+                current_node = node(sample)
+                current_node.index = tracker.idcount
+                current_node.parent = y.index
+                tracker.add_node(current_node,step)
+                new_ys.append(sample)
         elif args.method_generate == 'propose':
+            for y in ys:
+                proposal = get_proposals(task, x, y.data,limit=lim)
+                if proposal:
+                    current_node = node(proposal[0])
+                    current_node.index = tracker.idcount
+                    current_node.parent = y.index
+                    tracker.add_node(current_node,step)
+                    new_ys.append(proposal[0])
+
             new_ys = [get_proposals(task, x, y,lim) for y in ys ]
             new_ys = [x for x in new_ys if x is not None]
         new_ys = list(itertools.chain(*new_ys))
