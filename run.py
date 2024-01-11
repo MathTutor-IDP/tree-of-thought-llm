@@ -37,7 +37,7 @@ def run(args):
         with open(file, 'w') as f:
             json.dump(logs, f, indent=4)
         if not args.naive_run:
-            with open(f'./logs/{args.task}/{args.backend}_{args.temperature}_{args.method_generate}{args.n_generate_sample}_{args.method_evaluate}{args.n_evaluate_sample}_{args.method_select}{args.n_select_sample}_start{args.task_start_index}_end{args.task_end_index}.json', 'a') as f:
+            with open(f'./logs/{args.task}/{args.backend}_{args.temperature}_{args.method_generate}{args.n_generate_sample}_{args.method_evaluate}{args.n_evaluate_sample}_{args.method_select}{args.n_select_sample}_start{args.task_start_index}_end{args.task_end_index}_tracking.json', 'a') as f:
                 json.dump(tree, f, indent=4)
         
         # log main metric
