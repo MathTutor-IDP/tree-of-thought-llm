@@ -18,10 +18,10 @@ class MathTask(Task):
         25
     """
 
-    def __init__(self, file_path='data/'):
+    def __init__(self, file_path='data/', split='level_5', category='algebra'):
         super().__init__()
         self.mathDAO = DataParser(file_path)
-        self.mathDAO.loadResults('level_5', 'algebra')
+        self.mathDAO.loadResults(split, category)
         self.value_cache = {}
         self.steps = 4
         self.stops = STOPS

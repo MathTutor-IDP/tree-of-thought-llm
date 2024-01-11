@@ -7,7 +7,7 @@ from tot.methods.bfs import solve, naive_solve
 from tot.models import gpt_usage
 
 def run(args):
-    task = get_task(args.task)
+    task = get_task(args.task, args.split, args.category)
     logs, cnt_avg, cnt_any = [], 0, 0
     if args.naive_run:
         file = f'./logs/{args.task}/{args.backend}_{args.temperature}_naive_{args.prompt_sample}_sample_{args.n_generate_sample}_start{args.task_start_index}_end{args.task_end_index}.json'
@@ -68,6 +68,8 @@ def parse_args():
     args.add_argument('--n_evaluate_sample', type=int, default=1)
     args.add_argument('--n_select_sample', type=int, default=1)
     args.add_argument("--concatination", type=str, choices=[True, False],default=True)
+    args.add_argument('--split', type=str, choices=['level_5', 'train', 'test'], default='level_5')
+    args.add_argument('--category', type=str, choices=['algebra', 'counting_and_probability', 'geometry', 'number_theory', 'precalculus', 'prealgebra', 'intermediate_algebra'], default='algebra')
 
     args = args.parse_args()
     return args
