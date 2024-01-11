@@ -19,16 +19,16 @@ def get_values(task, x, ys, n_evaluate_sample, cache_value=True,limit=20):
     values = []
     local_value_cache = {}
     for y in ys:  # each partial output
-        if y in local_value_cache:  # avoid duplicate candidates
+        if y.data in local_value_cache:  # avoid duplicate candidates
             value = 0
         else:    
-            value = get_value(task, x, y, n_evaluate_sample, cache_value=cache_value,limit=limit)
+            value = get_value(task, x, y.data, n_evaluate_sample, cache_value=cache_value,limit=limit)
             local_value_cache[y] = value
         values.append(value)
     return values
 
 def get_votes(task, x, ys, n_evaluate_sample,limit):
-    vote_prompt = task.vote_prompt_wrap(x, ys)
+    vote_prompt = task.vote_prompt_wrap(x, [y.data for y in ys])
     #check_gpt_usage(task, limit)
     vote_outputs = gpt(vote_prompt, n=n_evaluate_sample, stop=None)
     values = task.vote_outputs_unwrap(vote_outputs, len(ys))
@@ -68,33 +68,35 @@ def solve(args, task, idx, to_print=True):
     lim = args.limit
     select_new_ys = ['']
     tracker = tree(task.steps)
+    tracker.index = idx
     start_node = node('')
-    start_node.index = tracker.idcount
+    start_node.index = tracker.get_id()
+    tracker.parent = start_node
     ys = [start_node]  # current output candidates
     for step in range(task.steps):
         # generation
         if args.method_generate == 'sample':
             new_ys = []
             for y in ys:
-                sample = get_samples(task, x, y.data, args.n_generate_sample, prompt_sample=args.prompt_sample, stop=task.stops[step],limit=lim,concotation=args.concatination)
-                current_node = node(sample)
-                current_node.index = tracker.idcount
-                current_node.parent = y.index
-                tracker.add_node(current_node,step)
-                new_ys.append(sample)
-        elif args.method_generate == 'propose':
-            for y in ys:
-                proposal = get_proposals(task, x, y.data,limit=lim)
-                if proposal:
-                    current_node = node(proposal[0])
-                    current_node.index = tracker.idcount
+                samples = get_samples(task, x, y.data, args.n_generate_sample, prompt_sample=args.prompt_sample, stop=task.stops[step],limit=lim,concotation=args.concatination)
+                for sample in samples:
+                    current_node = node(sample)
+                    current_node.index = tracker.get_id()
                     current_node.parent = y.index
                     tracker.add_node(current_node,step)
-                    new_ys.append(proposal[0])
-
-            new_ys = [get_proposals(task, x, y,lim) for y in ys ]
-            new_ys = [x for x in new_ys if x is not None]
-        new_ys = list(itertools.chain(*new_ys))
+                    new_ys.append(current_node)
+        elif args.method_generate == 'propose':
+            new_ys = []
+            for y in ys:
+                proposals = get_proposals(task, x, y.data,limit=lim)
+                for proposal in proposals:
+                    if not proposal:
+                        continue
+                    current_node = node(proposal)
+                    current_node.index = tracker.get_id()
+                    current_node.parent = y.index
+                    tracker.add_node(current_node,step)
+                    new_ys.append(current_node)
         ids = list(range(len(new_ys)))
         # evaluation
         if args.method_evaluate == 'vote':
@@ -113,25 +115,29 @@ def solve(args, task, idx, to_print=True):
         # log
         if to_print: 
             sorted_new_ys, sorted_values = zip(*sorted(zip(new_ys, values), key=lambda x: x[1], reverse=True))
-            print(f'-- new_ys --: {sorted_new_ys}\n-- sol values --: {sorted_values}\n-- choices --: {select_new_ys}\n')
+            print(f'-- new_ys --: {[y.data for y in sorted_new_ys]}\n-- sol values --: {sorted_values}\n-- choices --: {[y.data for y in select_new_ys]}\n')
         
-        infos.append({'step': step, 'x': x, 'ys': ys, 'new_ys': new_ys, 'values': values, 'select_new_ys': select_new_ys})
+        infos.append({'step': step, 'x': x, 'ys': [y.data for y in ys], 'new_ys': [y.data for y in new_ys], 'values': values, 'select_new_ys': [y.data for y in select_new_ys]})
         ys = select_new_ys
 
         if (hasattr(task, "gpt_limit_reached") and task.gpt_limit_reached):
-            final_result = gpt_overuse(task,x,select_new_ys[0])
+            final_result = gpt_overuse(task,x,select_new_ys[0].data)
             infos.append({'step': step, 'x': x, "final_result":final_result})
+            current_node = node(final_result)
+            current_node.index = tracker.get_id()
+            current_node.parent = select_new_ys[0].index
+            tracker.add_node(current_node,step+1)
             task.gpt_limit_reached = False
             task.gpt_usage = 0
-            ys = [select_new_ys[0] + "\n" + final_result]
+            ys = [select_new_ys[0].data + "\n" + final_result]
             break
 
         if task.stop_iteration:
             break
-    
+    ys = [y.data if isinstance(y, node) else y for y in ys]
     if to_print: 
         print(ys)
-    return ys, {'steps': infos}
+    return ys, {'steps': infos},tracker
 
 def naive_solve(args, task, idx, to_print=True):
     global gpt

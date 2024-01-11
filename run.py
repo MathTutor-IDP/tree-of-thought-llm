@@ -26,7 +26,7 @@ def run(args):
         if args.naive_run:
             ys, info = naive_solve(args, task, i) 
         else:
-            ys, info = solve(args, task, i)
+            ys, info , tree = solve(args, task, i)
 
         info_init.update(info)
         info = info_init
@@ -36,6 +36,9 @@ def run(args):
         logs.append(info)
         with open(file, 'w') as f:
             json.dump(logs, f, indent=4)
+        if not args.naive_run:
+            with open(f'./logs/{args.task}/{args.backend}_{args.temperature}_{args.method_generate}{args.n_generate_sample}_{args.method_evaluate}{args.n_evaluate_sample}_{args.method_select}{args.n_select_sample}_start{args.task_start_index}_end{args.task_end_index}.json', 'a') as f:
+                json.dump(tree, f, indent=4)
         
         # log main metric
         accs = [info['r'] for info in infos]
