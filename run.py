@@ -38,7 +38,7 @@ def run(args):
             json.dump(logs, f, indent=4)
         if not args.naive_run:
             with open(f'./logs/{args.task}/{args.backend}_{args.temperature}_{args.method_generate}{args.n_generate_sample}_{args.method_evaluate}{args.n_evaluate_sample}_{args.method_select}{args.n_select_sample}_start{args.task_start_index}_end{args.task_end_index}_tracking.json', 'a') as f:
-                json.dump(tree, f, indent=4)
+                json.dump(tree.__dict__(), f, indent=4)
         
         # log main metric
         accs = [info['r'] for info in infos]
@@ -59,7 +59,7 @@ def parse_args():
 
     args.add_argument('--task', type=str, required=False, choices=['game24', 'text', 'crosswords', 'math'],default='math')
     args.add_argument('--task_start_index', type=int, default=2)
-    args.add_argument('--task_end_index', type=int, default=56)
+    args.add_argument('--task_end_index', type=int, default=3)
 
     args.add_argument('--naive_run', action='store_true')
     args.add_argument('--prompt_sample', type=str, choices=['standard', 'cot'],default="cot")  # only used when method_generate = sample, or naive_run

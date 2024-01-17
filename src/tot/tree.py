@@ -31,6 +31,9 @@ class node:
     def parent(self, parent):
         self.__parent = parent
 
+    def __dict__(self):
+        return {'data': self.__data, 'index': self.__index, 'parent': self.__parent}
+
 class tree:
     def __init__(self,step=4):
         self.__parent = None
@@ -67,3 +70,14 @@ class tree:
     def get_id(self):
         self.__idcount += 1
         return self.__idcount
+    
+    def __dict__(self):
+        returnDict = {'parent': self.__parent.__dict__(), 'index': self.__index, 'idcount': self.__idcount}
+        tempTree = []
+        for layer in self.__tree:
+            temp = []
+            for leaf in layer:
+                temp.append(leaf.__dict__())
+            tempTree.append(temp.copy())
+        returnDict["tree"] = tempTree
+        return returnDict
