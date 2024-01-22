@@ -34,7 +34,7 @@ def get_votes(task, x, ys, n_evaluate_sample,limit):
     values = task.vote_outputs_unwrap(vote_outputs, len(ys))
     return values
 
-def get_proposals(task, x, y,limit): 
+def get_proposals(task, x, y,limit, step=None):
     propose_prompt = task.propose_prompt_wrap(x, y)
     if not check_gpt_usage(task, limit):
         return
@@ -42,6 +42,8 @@ def get_proposals(task, x, y,limit):
     proposals_list = []
     for p in proposals:
         if p and p != y:
+            if 'step alternative #' in p:
+                p = f'Step {step}:' + p.split(':', 1)[1]
             proposals_list.append(y + p + '\n')
     return proposals_list
 
@@ -88,7 +90,7 @@ def solve(args, task, idx, to_print=True):
         elif args.method_generate == 'propose':
             new_ys = []
             for y in ys:
-                proposals = get_proposals(task, x, y.data,limit=lim)
+                proposals = get_proposals(task, x, y.data,limit=lim,step=step+1)
                 for proposal in proposals:
                     if not proposal:
                         continue
@@ -118,7 +120,11 @@ def solve(args, task, idx, to_print=True):
             print(f'-- new_ys --: {[y.data for y in sorted_new_ys]}\n-- sol values --: {sorted_values}\n-- choices --: {[y.data for y in select_new_ys]}\n')
         
         infos.append({'step': step, 'x': x, 'ys': [y.data for y in ys], 'new_ys': [y.data for y in new_ys], 'values': values, 'select_new_ys': [y.data for y in select_new_ys]})
+
         ys = select_new_ys
+        for s in select_new_ys:
+            if 'final answer: ' in s.data.lower():
+                task.stop_iteration = True
 
         if (hasattr(task, "gpt_limit_reached") and task.gpt_limit_reached):
             final_result = gpt_overuse(task,x,select_new_ys[0].data)
@@ -127,9 +133,9 @@ def solve(args, task, idx, to_print=True):
             current_node.index = tracker.get_id()
             current_node.parent = select_new_ys[0].index
             tracker.add_node(current_node,step+1)
-            task.gpt_limit_reached = False
-            task.gpt_usage = 0
             ys = [select_new_ys[0].data + "\n" + final_result]
+            task.gpt_usage = 0
+            task.gpt_limit_reached = False
             break
 
         if task.stop_iteration:

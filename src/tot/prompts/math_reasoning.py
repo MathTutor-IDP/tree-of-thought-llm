@@ -54,24 +54,23 @@ Question: {question} Let's think step by step. Explain the reasoning for the fin
 propose_first_step_prompt = '''What would be a reasonable first step to solve the following math problem? Write down 3 different first steps. Do not write down the answer. Do not write down the question. Do not continue the solution. Do not write down the second step.
 <Example>
 Question: Let \\[f(x) = \\left\\{{\\n\\begin{{array}}{{cl}} ax+3, &\\text{{ if }}x>2, \\\\\\nx-5 &\\text{{ if }} -2 \\le x \\le 2, \\\\\\n2x-b &\\text{{ if }} x <-2.\\n\\end{{array}}\\n\\right.\\]Find $a+b$ if the piecewise function is continuous (which means that its graph can be drawn without lifting your pencil from the paper).
-First step #1: For the piecewise function to be continuous, the cases must "meet" at $2$ and $-2$ which are the limits of f(x).
-First step #2: $ax+3$ and $x-5$ must be equal when $x=2$. Also, $x-5$ and $2x-b$ must be equal when $x=-2$.
-First step #3: Assume f(x) is continuous at $x=2$ and $x=-2$.
+First step alternative #1: For the piecewise function to be continuous, the cases must "meet" at $2$ and $-2$ which are the limits of f(x).
+First step alternative #2: $ax+3$ and $x-5$ must be equal when $x=2$. Also, $x-5$ and $2x-b$ must be equal when $x=-2$.
+First step alternative #3: Assume f(x) is continuous at $x=2$ and $x=-2$.
 </Example>
 
 <Example>
 Question: Sixteen is 64$\\%$ of what number? 
-First step #1: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$.
-First step #2: Let $x$'s 64$\\%$ be 16. 
-First step #3: Set up the equation $16=0.64x$.
+First step alternative #1: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$.
+First step alternative #2: Let $x$'s 64$\\%$ be 16. 
+First step alternative #3: Set up the equation $16=0.64x$.
 </Example>
 
 <Example>
 Question: There are 3 complex numbers $a+bi$, $c+di$, and $e+fi$. If $b=1$, $e=-a-c$, and the sum of the numbers is $-i$, find $d+f$.
-First step #1: We know that $a+bi+c+di+e+fi=-i$. Thus, the real parts add up to 0 and the imaginary parts add up to -1.
-First step #2: Express the sum of the three complex numbers and equate it to $-i$.
-First step #3: Separate the real and imaginary parts of the given condition.
-
+First step alternative #1: We know that $a+bi+c+di+e+fi=-i$. Thus, the real parts add up to 0 and the imaginary parts add up to -1.
+First step alternative #2: Express the sum of the three complex numbers and equate it to $-i$.
+First step alternative #3: Separate the real and imaginary parts of the given condition.
 </Example>
 
 <Task>
@@ -116,23 +115,23 @@ Steps until now: {steps}
 </Task>
 '''
 
-propose_final_step_prompt = ''' Extract the final answer given the question and solution steps.
+propose_final_step_prompt = ''' Extract the final answer given the question and solution steps.  Always write the answer inside the \\boxed{{}}.
 <Example>
 Question: Let \\[f(x) = \\left\\{{\\n\\begin{{array}}{{cl}} ax+3, &\\text{{ if }}x>2, \\\\\\nx-5 &\\text{{ if }} -2 \\le x \\le 2, \\\\\\n2x-b &\\text{{ if }} x <-2.\\n\\end{{array}}\\n\\right.\\]Find $a+b$ if the piecewise function is continuous (which means that its graph can be drawn without lifting your pencil from the paper). Let's think step by step.
 Solution: For the piecewise function to be continuous, the cases must "meet" at $2$ and $-2$. For example, $ax+3$ and $x-5$ must be equal when $x=2$. This implies $a(2)+3=2-5$, which we solve to get $2a=-6 \\Rightarrow a=-3$. Similarly, $x-5$ and $2x-b$ must be equal when $x=-2$. Substituting, we get $-2-5=2(-2)-b$, which implies $b=3$. So $a+b=-3+3=\\boxed{{0}}$. Problem solved.
-Final answer: 0
+Final answer: \\boxed{{0}}
 </Example>
 
 <Example>
 Question: Sixteen is 64$\\%$ of what number? Let's think step by step.
 Solution: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$. We divide both sides by $4$ to get $\\frac{{1}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{25}}$.  Problem solved.
-Final answer: 25
+Final answer: \\boxed{{25}}
 </Example>
 
 <Example>
 Question: There are 3 complex numbers $a+bi$, $c+di$, and $e+fi$. If $b=1$, $e=-a-c$, and the sum of the numbers is $-i$, find $d+f$. Let's think step by step.
 Solution: We know that $a+bi+c+di+e+fi=-i$. Thus, the real parts add up to 0 and the imaginary parts add up to -1. We then have  \\begin{{align}}\\na+c+e&=0\\\\\\nb+d+f&=-1\\\\\\n\\end{{align}}We know that $b=1$, therefore $d+f=\\boxed{{-2}}$. Problem solved.
-Final answer: -2
+Final answer: \\boxed{{-2}}
 </Example>
 
 <Task>
@@ -142,7 +141,7 @@ Final answer:
 </Task>
 '''
 
-value_prompt = ''' Evaluate if given steps are likely to solve the question. Only mark as 'solved' if there is 'Problem Solved' in the steps. (solved, likely, unlikely, or unsure)
+value_prompt = ''' Evaluate if given steps are likely to solve the question. Only mark as 'solved' if there is 'Problem Solved' in the steps and reasoning is correct. (solved, likely, unlikely, or unsure)
 <Example>
 Question: Let \\[f(x) = \\left\\{{\\n\\begin{{array}}{{cl}} ax+3, &\\text{{ if }}x>2, \\\\\\nx-5 &\\text{{ if }} -2 \\le x \\le 2, \\\\\\n2x-b &\\text{{ if }} x <-2.\\n\\end{{array}}\\n\\right.\\]Find $a+b$ if the piecewise function is continuous (which means that its graph can be drawn without lifting your pencil from the paper).
 Steps: For the piecewise function to be continuous, the cases must "meet" at $2$ and $-2$.
@@ -155,6 +154,13 @@ Question: Sixteen is 64$\\%$ of what number?
 Steps: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$. We divide both sides by $4$ to get $\\frac{{1}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{25}}$. Problem solved.
 Reasoning: steps contains 'Problem solved' keyword
 Evaluation: solved
+</Example>
+
+<Example>
+Question: Sixteen is 64$\\%$ of what number? 
+Steps: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$. We divide both sides by $4$ to get $\\frac{{4}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{100}}$. Problem solved.
+Reasoning: steps and final answer are not correct
+Evaluation: unlikely
 </Example>
 
 <Example>
@@ -172,29 +178,27 @@ Evaluation:
 </Task>
 '''
 
-
-
-gpt_overuse_prompt = '''Solve the following math problem. Use the previous steps provided for the reasoning. Even if the given steps are not enough for the solution, you can use them to help you. Give the final answer as in the examples.
+gpt_overuse_prompt = '''Solve the following math problem. Use the previous steps provided for the reasoning. Even if the given steps are not enough for the solution, you can use them to help you. Give the final answer as in the examples. Always write the answer inside the \\boxed{{}}.
 
 <Example>
 Question: Let \\[f(x) = \\left\\{{\\n\\begin{{array}}{{cl}} ax+3, &\\text{{ if }}x>2, \\\\\\nx-5 &\\text{{ if }} -2 \\le x \\le 2, \\\\\\n2x-b &\\text{{ if }} x <-2.\\n\\end{{array}}\\n\\right.\\]Find $a+b$ if the piecewise function is continuous (which means that its graph can be drawn without lifting your pencil from the paper).
 Steps: For the piecewise function to be continuous, the cases must "meet" at $2$ and $-2$. For example, $ax+3$ and $x-5$ must be equal when $x=2$. This implies $a(2)+3=2-5$, which we solve to get $2a=-6 \\Rightarrow a=-3$. Similarly, $x-5$ and $2x-b$ must be equal when $x=-2$. Substituting, we get $-2-5=2(-2)-b$, which implies $b=3$. So $a+b=-3+3=\\boxed{{0}}$.
 Remaining steps: The solution has reached $a+b=\\boxed{{0}}$.
-Final answer: 0
+Final answer: \\boxed{{0}}
 </Example>
 
 <Example>
 Question: Sixteen is 64$\\%$ of what number? Let's think step by step.
 Steps: If the number is $x$, we can set up the equation $\\frac{{16}}{{x}}=\\frac{{64}}{{100}}$. We divide both sides by $4$ to get $\\frac{{1}}{{x}}=\\frac{{4}}{{100}}=\\frac{{1}}{{25}}$, so $x=\\boxed{{25}}$.
 Remaining steps: The solution has reached $x=\\boxed{{25}}$.
-Final answer: 25
+Final answer: \\boxed{{25}}
 </Example>
 
 <Example>
 Question: There are 3 complex numbers $a+bi$, $c+di$, and $e+fi$. If $b=1$, $e=-a-c$, and the sum of the numbers is $-i$, find $d+f$. Let's think step by step.
 Steps: We know that $a+bi+c+di+e+fi=-i$. Thus, the real parts add up to 0 and the imaginary parts add up to -1.
 Remaining steps: We then have  \\begin{{align}}\\na+c+e&=0\\\\\\nb+d+f&=-1\\\\\\n\\end{{align}}We know that $b=1$, therefore $d+f=\\boxed{{-2}}$
-Final answer: -2
+Final answer: \\boxed{{-2}}
 </Example>
 
 <Task>

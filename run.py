@@ -20,6 +20,7 @@ def run(args):
         info_init = {'idx': i}
 
         if hasattr(task, 'stop_iteration'):
+            task.gpt_usage = 0
             task.stop_iteration = False
 
         # solve
