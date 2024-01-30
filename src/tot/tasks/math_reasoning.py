@@ -3,7 +3,9 @@ import os
 import pandas as pd
 from src.tot.tasks.base import Task, DATA_PATH
 from src.tot.prompts.math_reasoning import *
+from src.tot.prompts.compare import gpt_assistant_prompt, gpt_question_prompt
 from src.tot.mathDataParser import DataParser
+import openai
 
 STOPS = ["Step 2:", "Step 3:", "Step 4:", "Final answer:"]
 
@@ -57,6 +59,34 @@ class MathTask(Task):
             return {'r': 1, 'correct_answer': correct_answer, 'model_answer': model_answer}
         else:
             return {'r': 0, 'correct_answer': correct_answer, 'model_answer': model_answer}
+
+    def test_output_gpt(self, idx: int, output: str):
+        expression = output.strip().split('\n')[-1].lower().replace('Final answer: ', '')
+        model_answer = self.extract_answer(expression)
+        correct_answer = self.extract_answer(self.mathDAO.resultsList[idx])
+        try:
+            model_answer = float(model_answer)
+            correct_answer = float(correct_answer)
+        except ValueError:
+            pass
+
+        response = bool(int(self.send_request(model_answer, correct_answer)["choices"][0]["message"]["content"][-1]))
+        if response:
+            return {'r': 1, 'correct_answer': correct_answer, 'model_answer': model_answer}
+        else:
+            return {'r': 0, 'correct_answer': correct_answer, 'model_answer': model_answer}
+
+    def send_request(self, solution1, solution2):
+        prompt = gpt_question_prompt.format(sol1=solution1, sol2=solution2)
+        message = [{"role": "assistant", "content": gpt_assistant_prompt},
+                   {"role": "user", "content": prompt}]
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=message,
+            temperature=0.7,
+            max_tokens=100
+        )
+        return response
 
     @staticmethod
     def standard_prompt_wrap(question: str, y: str = '') -> str:
