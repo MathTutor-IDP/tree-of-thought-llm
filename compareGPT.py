@@ -2,6 +2,7 @@ import os
 import openai
 import json
 from src.tot.prompts.compare import gpt_assistant_prompt, gpt_question_prompt
+import tqdm
 
 
 class compareGPT:
@@ -40,15 +41,25 @@ class compareGPT:
 
     def calculateDataAccuracy(self):
         acc = 0
-        for question in self.__data:
+        collector = []
+        for question in tqdm.tqdm(self.__data):
+            dataDict = {}
             calculated = question["steps"][-1]["final_result"]
             exact = question["infos"][0]["correct_answer"]
+            dataDict["calculated"] = calculated
+            dataDict["exact"] = exact
+            dataDict["question"] = question["steps"][0]["x"]
             response = self.get_response(calculated, exact)
+            dataDict["response"] = response
+            collector.append(dataDict)
             if response:
                 acc += 1
-        return acc/len(self.__data)
+        with open("compare.json", "w") as file:
+            json.dump(collector, file, indent=4)
+        return dataDict, acc/len(self.__data)
 
 
 if __name__ == "__main__":
     compare = compareGPT("geometry.json")
-    compare.calculateDataAccuracy()
+    _, acc = compare.calculateDataAccuracy()
+    print(acc)
